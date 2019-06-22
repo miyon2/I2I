@@ -1,0 +1,1 @@
+cmd_/home/jhs/embso/team/dht11/dht11.ko := arm-linux-gnueabi-ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/jhs/embso/team/dht11/dht11.ko /home/jhs/embso/team/dht11/dht11.o /home/jhs/embso/team/dht11/dht11.mod.o ;  true
