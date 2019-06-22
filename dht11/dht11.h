@@ -4,7 +4,7 @@
 #include <linux/gpio.h>
 #include <linux/delay.h>
 
-MODULE_LICENSE("GPL");
+// MODULE_LICENSE("GPL");
 
 #define MAX_TIMING 85
 #define DHT11 21

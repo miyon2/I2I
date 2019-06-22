@@ -43,7 +43,7 @@ static void dht11_read(void){
 		printk("Data not good, skip\n");
 	}
 }
-
+/*
 static int __init simple_dht11_init(void) {
 	int i = 0;
 	gpio_request(DHT11, "DHT11");
@@ -60,3 +60,4 @@ static void __exit simple_dht11_exit(void) {
 
 module_init(simple_dht11_init);
 module_exit(simple_dht11_exit);
+*/
