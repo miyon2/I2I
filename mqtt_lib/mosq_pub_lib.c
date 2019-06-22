@@ -68,105 +68,114 @@ int mosq_pub_init(){
 }
 
 int mosq_pub_temp(){
-    temp_fp = fopen("temp.txt", "w");
     dht *my_dht = (dht *)malloc(sizeof(struct dht));
 
     ioctl(dev, GET_HUMIDITY, my_dht);
-    printf("[hum]my_dht is : %d\n", my_dht->dht1);
-    printf("[hum]my_dht is : %d\n", my_dht->dht2);
-    printf("[hum]my_dht is : %d\n", my_dht->dht3);
-    printf("[hum]my_dht is : %d\n", my_dht->dht4);
+    if(((my_dht->dht1)!=0)&&((my_dht->dht2)!=0)&&((my_dht->dht3)!=0)&&((my_dht->dht4)!=0)){
+        temp_fp = fopen("temp.txt", "w");
+        printf("[hum]my_dht is : %d\n", my_dht->dht1);
+        printf("[hum]my_dht is : %d\n", my_dht->dht2);
+        printf("[hum]my_dht is : %d\n", my_dht->dht3);
+        printf("[hum]my_dht is : %d\n", my_dht->dht4);
 
-    sprintf(text, "%d.%d",my_dht->dht1, my_dht->dht2);
-    fprintf(temp_fp, "%s", text);
+        sprintf(text, "%d.%d",my_dht->dht1, my_dht->dht2);
+        fprintf(temp_fp, "%s", text);
 
-    ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
+        ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
 
-    if(ret){
-        printf("Cant connect to mosquitto server\n");
-	    printf("3\n");
-        exit(-1);
+        if(ret){
+            printf("Cant connect to mosquitto server\n");
+            printf("3\n");
+            exit(-1);
+        }
+
+        sleep(1);
+        fclose(temp_fp);
+
+        return 0;
     }
-
-    sleep(1);
-    fclose(temp_fp);
 
     return 0;
 }
 
 int mosq_pub_hum(){
-    hum_fp = fopen("hum.txt", "w");
     dht *my_dht = (dht *)malloc(sizeof(struct dht));
-
+    
     ioctl(dev, GET_HUMIDITY, my_dht);
-    printf("[hum]my_dht is : %d\n", my_dht->dht1);
-    printf("[hum]my_dht is : %d\n", my_dht->dht2);
-    printf("[hum]my_dht is : %d\n", my_dht->dht3);
-    printf("[hum]my_dht is : %d\n", my_dht->dht4);
 
-    sprintf(text, "%d.%d", my_dht->dht3, my_dht->dht4);
-    fprintf(hum_fp, "%s", text);
+    if(((my_dht->dht1)!=0)&&((my_dht->dht2)!=0)&&((my_dht->dht3)!=0)&&((my_dht->dht4)!=0)){
+        hum_fp = fopen("hum.txt", "w");
+        printf("[hum]my_dht is : %d\n", my_dht->dht1);
+        printf("[hum]my_dht is : %d\n", my_dht->dht2);
+        printf("[hum]my_dht is : %d\n", my_dht->dht3);
+        printf("[hum]my_dht is : %d\n", my_dht->dht4);
 
-    ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
+        sprintf(text, "%d.%d", my_dht->dht3, my_dht->dht4);
+        fprintf(hum_fp, "%s", text);
 
-    if(ret){
-        printf("Cant connect to mosquitto server\n");
-	    printf("3\n");
-        exit(-1);
+        ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
+
+        if(ret){
+            printf("Cant connect to mosquitto server\n");
+            printf("3\n");
+            exit(-1);
+        }
+
+        sleep(1);
+        fclose(hum_fp);
+
+        return 0;
     }
-
-    sleep(1);
-    fclose(hum_fp);
-
+    
     return 0;
 }
 
-int mosq_pub_dust(){
-    int *ret_ioctl = (int *)malloc(sizeof(int));
-    float my_dust;
+// int mosq_pub_dust(){
+//     int *ret_ioctl = (int *)malloc(sizeof(int));
+//     float my_dust;
 
-    ioctl(dev, GET_DUST, ret_ioctl);
-    printf("ret_ioctl is : %d\n", *ret_ioctl);
-    my_dust = (*ret_ioctl) / 100;
+//     ioctl(dev, GET_DUST, ret_ioctl);
+//     printf("ret_ioctl is : %d\n", *ret_ioctl);
+//     my_dust = (*ret_ioctl) / 100;
 
-    sprintf(text, "%f", my_dust);
+//     sprintf(text, "%f", my_dust);
 
-    ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
+//     ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
 
-    if(ret){
-        printf("Cant connect to mosquitto server\n");
-	    printf("3\n");
-        exit(-1);
-    }
+//     if(ret){
+//         printf("Cant connect to mosquitto server\n");
+// 	    printf("3\n");
+//         exit(-1);
+//     }
 
-    sleep(1);
+//     sleep(1);
 
-    return 0;
-}
+//     return 0;
+// }
 
-int mosq_pub_light(){
-    int *ret_ioctl = (int *)malloc(sizeof(int));
-    float my_light;
+// int mosq_pub_light(){
+//     int *ret_ioctl = (int *)malloc(sizeof(int));
+//     float my_light;
 
-    ioctl(dev, GET_LIGHT, ret_ioctl);
-    printf("ret_ioctl is : %d\n", *ret_ioctl);
-    my_light = (*ret_ioctl) / 100;
+//     ioctl(dev, GET_LIGHT, ret_ioctl);
+//     printf("ret_ioctl is : %d\n", *ret_ioctl);
+//     my_light = (*ret_ioctl) / 100;
 
-    // text = "Nice to meet u\n";
-    sprintf(text, "%f", my_light);
+//     // text = "Nice to meet u\n";
+//     sprintf(text, "%f", my_light);
 
-    ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
+//     ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
 
-    if(ret){
-        printf("Cant connect to mosquitto server\n");
-	    printf("3\n");
-        exit(-1);
-    }
+//     if(ret){
+//         printf("Cant connect to mosquitto server\n");
+// 	    printf("3\n");
+//         exit(-1);
+//     }
 
-    sleep(1);
+//     sleep(1);
 
-    return 0;
-}
+//     return 0;
+// }
 
 int mosq_pub_disconn(){
     mosquitto_disconnect(mosq);
