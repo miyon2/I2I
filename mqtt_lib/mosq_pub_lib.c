@@ -40,6 +40,9 @@ struct mosquitto *mosq;
 char text[20];
 int dev;
 
+FILE *hum_fp;
+FILE *temp_fp;
+
 int mosq_pub_init(){
     dev = open("/dev/mosq_ioctl_dev", O_RDWR);
 
@@ -64,9 +67,8 @@ int mosq_pub_init(){
     }
 }
 
-int mosq_pub_hum(){
-    float my_hum;
-
+int mosq_pub_temp(){
+    temp_fp = fopen("temp.txt", "w");
     dht *my_dht = (dht *)malloc(sizeof(struct dht));
 
     ioctl(dev, GET_HUMIDITY, my_dht);
@@ -75,7 +77,8 @@ int mosq_pub_hum(){
     printf("[hum]my_dht is : %d\n", my_dht->dht3);
     printf("[hum]my_dht is : %d\n", my_dht->dht4);
 
-    sprintf(text, "%d.%d || %d.%d", my_dht->dht1, my_dht->dht2, my_dht->dht3, my_dht->dht4);
+    sprintf(text, "%d.%d",my_dht->dht1, my_dht->dht2);
+    fprintf(temp_fp, "%s", text);
 
     ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
 
@@ -86,6 +89,34 @@ int mosq_pub_hum(){
     }
 
     sleep(1);
+    fclose(temp_fp);
+
+    return 0;
+}
+
+int mosq_pub_hum(){
+    hum_fp = fopen("hum.txt", "w");
+    dht *my_dht = (dht *)malloc(sizeof(struct dht));
+
+    ioctl(dev, GET_HUMIDITY, my_dht);
+    printf("[hum]my_dht is : %d\n", my_dht->dht1);
+    printf("[hum]my_dht is : %d\n", my_dht->dht2);
+    printf("[hum]my_dht is : %d\n", my_dht->dht3);
+    printf("[hum]my_dht is : %d\n", my_dht->dht4);
+
+    sprintf(text, "%d.%d", my_dht->dht3, my_dht->dht4);
+    fprintf(hum_fp, "%s", text);
+
+    ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
+
+    if(ret){
+        printf("Cant connect to mosquitto server\n");
+	    printf("3\n");
+        exit(-1);
+    }
+
+    sleep(1);
+    fclose(hum_fp);
 
     return 0;
 }

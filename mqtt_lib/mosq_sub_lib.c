@@ -10,11 +10,12 @@
 #define mqtt_port 1883
 #define MQTT_TOPIC "myTopic"
 
-FILE *dust_fp;
+FILE *temp_fp;
 FILE *hum_fp;
 
 static int run = 1;
 int rc = 0;
+int call_count = 0;
 struct mosquitto *mosq;
 
 void handle_signal(int s){
@@ -27,16 +28,21 @@ void connect_callback(struct mosquitto *mosq, void *obj, int result){
 
 void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message){
     bool match = 0;
-    dust_fp = fopen("dust.txt", "w");
+    temp_fp = fopen("temp.txt", "w");
     hum_fp = fopen("hum.txt", "w");
 
     printf("receive message(%s) : %s\n", message->topic, message->payload);
     if(match){
         printf("got message for ADC topic\n");
     }
-    
-    fprintf(dust_fp, "%s", message->payload);
-    fprintf(hum_fp, "%s", message->payload);
+    if(!(call_count % 2)){
+        fprintf(hum_fp, "%s", message->payload);
+        call_count++;
+    }
+    else{
+        fprintf(temp_fp, "%s", message->payload);
+        call_count++;
+    }
 
     fclose(dust_fp);
     fclose(hum_fp);

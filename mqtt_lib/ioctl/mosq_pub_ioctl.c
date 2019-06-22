@@ -7,6 +7,8 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 
+#include "../../dht11.h"
+
 MODULE_LICENSE("GPL");
 
 #define DEV_NAME "mosq_ioctl_dev"
@@ -38,10 +40,7 @@ static long mosq_ioctl(struct file *file, unsigned int cmd, unsigned long arg){
 	*dust_data = my_ret;
 	*light_data = my_ret;
 	struct dht *my_dht = kmalloc(sizeof(struct dht), GFP_KERNEL);
-	my_dht->dht1 = 5;
-	my_dht->dht2 = 6;
-	my_dht->dht3 = 7;
-	my_dht->dht4 = 8;
+
 	// copy_from_user(test_ret, (int *)buf, sizeof(int));
 	switch( cmd ){
 		case GET_DUST:
@@ -50,6 +49,11 @@ static long mosq_ioctl(struct file *file, unsigned int cmd, unsigned long arg){
 			break;
 		case GET_HUMIDITY:
 			printk("get humidity\n");
+			dht11_read();
+			my_dht->dht1 = hum_data[0];
+			my_dht->dht2 = hum_data[1];
+			my_dht->dht3 = hum_data[2];
+			my_dht->dht4 = hum_data[3];
 			copy_to_user((struct dht*)arg, my_dht, sizeof(struct dht));
 			break;
 		case GET_LIGHT:
