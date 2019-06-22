@@ -1,0 +1,1 @@
+cmd_/home/jhs/embso/team/light_sensor/rpi-spi/led_ioctl.ko := arm-linux-gnueabi-ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/jhs/embso/team/light_sensor/rpi-spi/led_ioctl.ko /home/jhs/embso/team/light_sensor/rpi-spi/led_ioctl.o /home/jhs/embso/team/light_sensor/rpi-spi/led_ioctl.mod.o ;  true
