@@ -24,7 +24,7 @@ MODULE_LICENSE("GPL");
 #define HXDO 27
 
 #define STEPS 8
-#define W_THRESHOLD 1000
+#define W_THRESHOLD 1300
 
 int step[STEPS][4]= 
 {{1,0,0,0}
@@ -119,7 +119,6 @@ void usonic_tasklet_func(unsigned long data)
 
 	if( tmp> 15)
 		tmp = 15;
-	printk("height : %ld\n", tmp);
 	height = tmp;
 }
 unsigned long ReadCount(void)
@@ -146,7 +145,6 @@ unsigned long ReadCount(void)
 	local_irq_restore(flags);
 	count = count>>2;
 	count = count - w_offset;
-//	printk("count : %ld \n",count);
 	return count;
 }
 
@@ -164,7 +162,6 @@ static void check_weight_timer(unsigned long data)
 		w_flag = w_flag<<1;
 	}
 	w_flag = w_flag&0b11;
-	printk(" w_flag %d \n",w_flag);
 	if( ( w_flag == 0b01 ) )
 		tasklet_schedule(&usonic_tasklet);
 	my_timer.expires =  jiffies +(HZ/8);
@@ -174,7 +171,6 @@ static int __init inpi_init(void)
 {
 	int i;
 	long mean_count=0;
-	printk("init module\n");
 	gpio_request_one(PIN1, GPIOF_OUT_INIT_LOW, "p1");
 	gpio_request_one(PIN2, GPIOF_OUT_INIT_LOW, "p2");
 	gpio_request_one(PIN3, GPIOF_OUT_INIT_LOW, "p3");
@@ -184,10 +180,8 @@ static int __init inpi_init(void)
 	gpio_request_one(HXDO, GPIOF_IN,"hxdo");
 	gpio_request_one(HXSK, GPIOF_OUT_INIT_LOW, "hxsk");
 
-	printk("init tasklet\n");
 	tasklet_init(&usonic_tasklet, usonic_tasklet_func, 0);
 
-	printk("create motor thread\n");
 	motor_thread = kthread_create(motor_thread_func, NULL, "motor_thead");
 	if(IS_ERR(motor_thread))
 	{
@@ -214,7 +208,6 @@ static void __exit inpi_exit(void)
 
 	if(motor_thread)
 		kthread_stop(motor_thread);
-	printk("del timer\n");
 	del_timer(&my_timer);
 	gpio_free(PIN1);
 	gpio_free(PIN2);
