@@ -7,7 +7,7 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 
-#include "../../dht11.h"
+#include "../../dht11/dht11.h"
 
 MODULE_LICENSE("GPL");
 
@@ -31,7 +31,6 @@ struct dht{
 }dht;
 
 int *dust_data;
-int *hum_data;
 int *light_data;
 
 static long mosq_ioctl(struct file *file, unsigned int cmd, unsigned long arg){
