@@ -44,7 +44,7 @@ void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_
         call_count++;
     }
 
-    fclose(dust_fp);
+    fclose(temp_fp);
     fclose(hum_fp);
 }
 
