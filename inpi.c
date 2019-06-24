@@ -24,7 +24,7 @@ MODULE_LICENSE("GPL");
 #define HXDO 27
 
 #define STEPS 8
-#define W_THRESHOLD 1300
+#define W_THRESHOLD 3000
 
 int step[STEPS][4]= 
 {{1,0,0,0}
@@ -38,12 +38,47 @@ int step[STEPS][4]=
 
 
 static struct timer_list my_timer;
-static long height=15;
-static long w_offset = 0;
+static long height=12;
+static unsigned long w_offset = 0;
 static char w_flag =0;
 struct task_struct *motor_thread;
 struct tasklet_struct usonic_tasklet;
 
+unsigned long  ReadHeight(void)
+{
+	struct timeval start_time, end_time;
+	unsigned long distance, flags;
+
+	local_irq_save(flags);
+
+	gpio_set_value(TRIG,1);
+	udelay(10);
+	gpio_set_value(TRIG,0);
+
+	while(gpio_get_value(ECHO) == 0){};
+	do_gettimeofday(&start_time);
+	while(gpio_get_value(ECHO)==1){};
+	do_gettimeofday(&end_time);
+
+	local_irq_restore(flags);
+	
+	distance = (end_time.tv_usec - start_time.tv_usec)/58;
+
+	if( distance> 12)
+		distance = 12;
+	return distance;
+}
+
+void usonic_tasklet_func(unsigned long data)
+{
+	unsigned long tmp;
+
+	tmp=ReadHeight();
+
+	height = tmp;
+//	printk(" h : %ld\n",height);
+
+}
 
 static void setStep(int p1, int p2, int p3, int p4)
 {
@@ -70,17 +105,18 @@ static void moveDegree(int degree, int delay, int direction)
 
 static int motor_thread_func(void *data)
 {
-	long my_h=15;
+	long my_h;
+	my_h = ReadHeight();
 	while(!kthread_should_stop())
 	{
 		if(my_h>height)
 		{
-			moveDegree((my_h-height)<<2,900,1);
+			moveDegree((my_h-height)*12,1100,1);
 			my_h=height;
 		}
 		else if(my_h<height)
 		{
-			moveDegree((height-my_h)<<2,900,0);
+			moveDegree((height-my_h)*12,1100,0);
 			my_h=height;
 		}
 		msleep(100);
@@ -88,42 +124,10 @@ static int motor_thread_func(void *data)
 	}
 	return 0;
 }
-unsigned long  ReadHeight(void)
-{
-	struct timeval start_time, end_time;
-	unsigned long distance, flags;
 
-	local_irq_save(flags);
-
-	gpio_set_value(TRIG,1);
-	udelay(10);
-	gpio_set_value(TRIG,0);
-
-	while(gpio_get_value(ECHO) == 0){};
-	do_gettimeofday(&start_time);
-	while(gpio_get_value(ECHO)==1){};
-	do_gettimeofday(&end_time);
-
-	local_irq_restore(flags);
-	
-	distance = (end_time.tv_usec - start_time.tv_usec)/58;
-
-	return distance;
-}
-
-void usonic_tasklet_func(unsigned long data)
-{
-	unsigned long tmp;
-
-	tmp=ReadHeight();
-
-	if( tmp> 15)
-		tmp = 15;
-	height = tmp;
-}
 unsigned long ReadCount(void)
 {
-	long count;
+	unsigned long count;
 	unsigned long flags;
 	unsigned char i;
 	count =0;
@@ -150,7 +154,7 @@ unsigned long ReadCount(void)
 
 static void check_weight_timer(unsigned long data)
 {
-	long count;
+	unsigned long count;
 	count = ReadCount();
 	if(abs(count)>W_THRESHOLD)
 	{
@@ -164,13 +168,13 @@ static void check_weight_timer(unsigned long data)
 	w_flag = w_flag&0b11;
 	if( ( w_flag == 0b01 ) )
 		tasklet_schedule(&usonic_tasklet);
-	my_timer.expires =  jiffies +(HZ/8);
+	my_timer.expires =  jiffies +(HZ/4);
 	add_timer(&my_timer);
 }
 static int __init inpi_init(void)
 {
 	int i;
-	long mean_count=0;
+	unsigned long mean_count=0;
 	gpio_request_one(PIN1, GPIOF_OUT_INIT_LOW, "p1");
 	gpio_request_one(PIN2, GPIOF_OUT_INIT_LOW, "p2");
 	gpio_request_one(PIN3, GPIOF_OUT_INIT_LOW, "p3");
@@ -196,7 +200,7 @@ static int __init inpi_init(void)
 
 	init_timer(&my_timer);
 	my_timer.function = check_weight_timer;
-	my_timer.expires = jiffies + (HZ/8);
+	my_timer.expires = jiffies + (HZ/4);
 	add_timer(&my_timer);
 	wake_up_process(motor_thread);
 	return 0;
