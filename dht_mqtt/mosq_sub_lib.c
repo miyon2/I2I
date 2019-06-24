@@ -6,7 +6,7 @@
 
 #include <mosquitto.h>
 
-#define mqtt_host "localhost"
+#define mqtt_host "192.168.0.166"
 #define mqtt_port 1883
 #define MQTT_TOPIC "myTopic"
 
