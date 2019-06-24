@@ -28,24 +28,24 @@ void connect_callback(struct mosquitto *mosq, void *obj, int result){
 
 void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message){
     bool match = 0;
-    temp_fp = fopen("temp.txt", "w");
-    hum_fp = fopen("hum.txt", "w");
 
     printf("receive message(%s) : %s\n", message->topic, message->payload);
     if(match){
         printf("got message for ADC topic\n");
     }
+    
     if(!(call_count % 2)){
+        hum_fp = fopen("hum.txt", "w");
         fprintf(hum_fp, "%s", message->payload);
+        fclose(hum_fp);
         call_count++;
     }
     else{
+        temp_fp = fopen("temp.txt", "w");
         fprintf(temp_fp, "%s", message->payload);
+        fclose(temp_fp);
         call_count++;
     }
-
-    fclose(temp_fp);
-    fclose(hum_fp);
 }
 
 int mosq_sub_init(){

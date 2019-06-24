@@ -72,14 +72,13 @@ int mosq_pub_temp(){
 
     ioctl(dev, GET_HUMIDITY, my_dht);
     if(((my_dht->dht1)!=0)&&((my_dht->dht2)!=0)&&((my_dht->dht3)!=0)&&((my_dht->dht4)!=0)){
-        temp_fp = fopen("temp.txt", "w");
+        
         printf("[hum]my_dht is : %d\n", my_dht->dht1);
         printf("[hum]my_dht is : %d\n", my_dht->dht2);
         printf("[hum]my_dht is : %d\n", my_dht->dht3);
         printf("[hum]my_dht is : %d\n", my_dht->dht4);
 
         sprintf(text, "%d.%d",my_dht->dht1, my_dht->dht2);
-        fprintf(temp_fp, "%s", text);
 
         ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
 
@@ -89,8 +88,11 @@ int mosq_pub_temp(){
             exit(-1);
         }
 
-        sleep(1);
+        temp_fp = fopen("temp.txt", "w");
+        fprintf(temp_fp, "%s", text);
         fclose(temp_fp);
+        
+        sleep(1);
 
         return 0;
     }
@@ -104,14 +106,12 @@ int mosq_pub_hum(){
     ioctl(dev, GET_HUMIDITY, my_dht);
 
     if(((my_dht->dht1)!=0)&&((my_dht->dht2)!=0)&&((my_dht->dht3)!=0)&&((my_dht->dht4)!=0)){
-        hum_fp = fopen("hum.txt", "w");
         printf("[hum]my_dht is : %d\n", my_dht->dht1);
         printf("[hum]my_dht is : %d\n", my_dht->dht2);
         printf("[hum]my_dht is : %d\n", my_dht->dht3);
         printf("[hum]my_dht is : %d\n", my_dht->dht4);
 
         sprintf(text, "%d.%d", my_dht->dht3, my_dht->dht4);
-        fprintf(hum_fp, "%s", text);
 
         ret = mosquitto_publish(mosq, NULL, MQTT_TOPIC, strlen(text), text, 0, false);
 
@@ -121,8 +121,11 @@ int mosq_pub_hum(){
             exit(-1);
         }
 
-        sleep(1);
+        hum_fp = fopen("hum.txt", "w");
+        fprintf(hum_fp, "%s", text);
         fclose(hum_fp);
+
+        sleep(1);
 
         return 0;
     }
