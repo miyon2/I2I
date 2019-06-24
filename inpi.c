@@ -38,7 +38,7 @@ int step[STEPS][4]=
 
 
 static struct timer_list my_timer;
-static long height=12;
+static long height=16;
 static unsigned long w_offset = 0;
 static char w_flag =0;
 struct task_struct *motor_thread;
@@ -64,8 +64,8 @@ unsigned long  ReadHeight(void)
 	
 	distance = (end_time.tv_usec - start_time.tv_usec)/58;
 
-	if( distance> 12)
-		distance = 12;
+	if( distance> 16)
+		distance = 16;
 	return distance;
 }
 
