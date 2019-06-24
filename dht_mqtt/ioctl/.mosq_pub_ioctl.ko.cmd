@@ -1,0 +1,1 @@
+cmd_/home/jhs/dht_mqtt/ioctl/mosq_pub_ioctl.ko := arm-linux-gnueabi-ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/jhs/dht_mqtt/ioctl/mosq_pub_ioctl.ko /home/jhs/dht_mqtt/ioctl/mosq_pub_ioctl.o /home/jhs/dht_mqtt/ioctl/mosq_pub_ioctl.mod.o ;  true

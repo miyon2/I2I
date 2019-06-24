@@ -1,0 +1,1 @@
+cmd_/home/jhs/mqtt_lib/ioctl/dht11.ko := arm-linux-gnueabi-ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/jhs/mqtt_lib/ioctl/dht11.ko /home/jhs/mqtt_lib/ioctl/dht11.o /home/jhs/mqtt_lib/ioctl/dht11.mod.o ;  true
