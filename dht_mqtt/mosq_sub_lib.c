@@ -34,7 +34,7 @@ void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_
         printf("got message for ADC topic\n");
     }
     
-    if((call_count % 2)){
+    if(!(call_count % 2)){
         hum_fp = fopen("hum.txt", "w");
         fprintf(hum_fp, "%s", message->payload);
         fclose(hum_fp);
